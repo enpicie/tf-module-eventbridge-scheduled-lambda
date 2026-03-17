@@ -1,52 +1,10 @@
-locals {
-  role_arn = var.iam_role_arn != null ? var.iam_role_arn : aws_iam_role.lambda[0].arn
-}
-
-# ------------------------------------------------------------------------------
-# IAM — only created when no role is provided
-# ------------------------------------------------------------------------------
-
-data "aws_iam_policy_document" "lambda_assume_role" {
-  count = var.iam_role_arn == null ? 1 : 0
-
-  statement {
-    actions = ["sts:AssumeRole"]
-    principals {
-      type        = "Service"
-      identifiers = ["lambda.amazonaws.com"]
-    }
-  }
-}
-
-resource "aws_iam_role" "lambda" {
-  count = var.iam_role_arn == null ? 1 : 0
-
-  name               = "${var.name}-lambda-role"
-  assume_role_policy = data.aws_iam_policy_document.lambda_assume_role[0].json
-  tags               = var.tags
-}
-
-resource "aws_iam_role_policy_attachment" "basic_execution" {
-  count = var.iam_role_arn == null ? 1 : 0
-
-  role       = aws_iam_role.lambda[0].name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
-}
-
-resource "aws_iam_role_policy_attachment" "additional" {
-  for_each = var.iam_role_arn == null ? toset(var.additional_policy_arns) : toset([])
-
-  role       = aws_iam_role.lambda[0].name
-  policy_arn = each.value
-}
-
 # ------------------------------------------------------------------------------
 # Lambda
 # ------------------------------------------------------------------------------
 
 resource "aws_lambda_function" "this" {
   function_name = var.name
-  role          = local.role_arn
+  role          = var.iam_role_arn
   handler       = var.handler
   runtime       = var.runtime
   timeout       = var.timeout

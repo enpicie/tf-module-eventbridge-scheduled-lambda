@@ -8,11 +8,6 @@ output "lambda_function_arn" {
   value       = aws_lambda_function.this.arn
 }
 
-output "lambda_role_arn" {
-  description = "ARN of the IAM role used by the Lambda function"
-  value       = local.role_arn
-}
-
 output "event_rule_arn" {
   description = "ARN of the EventBridge schedule rule"
   value       = aws_cloudwatch_event_rule.schedule.arn

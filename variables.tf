@@ -55,15 +55,8 @@ variable "memory_size" {
 }
 
 variable "iam_role_arn" {
-  description = "ARN of an existing IAM role to use for the Lambda. If not provided, a basic execution role will be created."
+  description = "ARN of the IAM execution role for the Lambda function"
   type        = string
-  default     = null
-}
-
-variable "additional_policy_arns" {
-  description = "List of additional IAM policy ARNs to attach to the created Lambda execution role. Only used when iam_role_arn is not provided."
-  type        = list(string)
-  default     = []
 }
 
 variable "layers" {
