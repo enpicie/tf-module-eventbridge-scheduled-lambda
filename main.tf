@@ -56,7 +56,9 @@ resource "aws_lambda_function" "this" {
   filename         = var.filename
   s3_bucket        = var.s3_bucket
   s3_key           = var.s3_key
-  source_code_hash = var.filename != null ? filebase64sha256(var.filename) : null
+  source_code_hash = var.filename != null ? filebase64sha256(var.filename) : var.source_code_hash
+
+  layers = length(var.layers) > 0 ? var.layers : null
 
   dynamic "environment" {
     for_each = length(var.environment_variables) > 0 ? [1] : []

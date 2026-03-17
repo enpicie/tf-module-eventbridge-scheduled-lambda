@@ -66,6 +66,18 @@ variable "additional_policy_arns" {
   default     = []
 }
 
+variable "layers" {
+  description = "List of Lambda layer ARNs to attach (max 5)"
+  type        = list(string)
+  default     = []
+}
+
+variable "source_code_hash" {
+  description = "Base64-encoded SHA256 hash of the deployment package. Used to force redeployment when the package changes. For local zips this is computed automatically; supply this when deploying from S3."
+  type        = string
+  default     = null
+}
+
 variable "enabled" {
   description = "Whether the EventBridge schedule rule is enabled"
   type        = bool

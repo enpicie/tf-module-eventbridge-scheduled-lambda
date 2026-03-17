@@ -46,7 +46,9 @@ module "my_scheduled_lambda" {
 }
 ```
 
-### Deploy from S3
+### Deploy from S3 with source code hash
+
+When deploying from S3, provide `source_code_hash` so Terraform can detect package changes and redeploy automatically. A common pattern is to hash the zip with the `filebase64sha256` function before uploading, then pass the result here.
 
 ```hcl
 module "my_scheduled_lambda" {
@@ -58,6 +60,25 @@ module "my_scheduled_lambda" {
   s3_key              = "lambdas/my-job.zip"
   handler             = "index.handler"
   runtime             = "nodejs20.x"
+  source_code_hash    = filebase64sha256("${path.module}/lambda.zip")
+}
+```
+
+### With Lambda layers
+
+```hcl
+module "my_scheduled_lambda" {
+  source = "github.com/your-org/tf-module-eventbridge-scheduled-lambda"
+
+  name                = "my-job"
+  schedule_expression = "rate(5 minutes)"
+  filename            = "${path.module}/lambda.zip"
+  handler             = "index.handler"
+  runtime             = "python3.12"
+
+  layers = [
+    "arn:aws:lambda:us-east-1:123456789012:layer:my-deps:4",
+  ]
 }
 ```
 
@@ -87,6 +108,8 @@ module "my_scheduled_lambda" {
 | `filename` | Path to local zip file | `string` | `null` | no |
 | `s3_bucket` | S3 bucket for deployment package | `string` | `null` | no |
 | `s3_key` | S3 key for deployment package | `string` | `null` | no |
+| `source_code_hash` | Base64 SHA256 of the deployment package. Computed automatically for local zips; provide this for S3 deployments to enable change detection. | `string` | `null` | no |
+| `layers` | List of Lambda layer ARNs to attach (max 5) | `list(string)` | `[]` | no |
 | `environment_variables` | Lambda environment variables | `map(string)` | `{}` | no |
 | `timeout` | Lambda timeout (seconds) | `number` | `60` | no |
 | `memory_size` | Lambda memory (MB) | `number` | `128` | no |
