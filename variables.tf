@@ -59,6 +59,17 @@ variable "iam_role_arn" {
   type        = string
 }
 
+variable "architecture" {
+  description = "Instruction set architecture for the Lambda function ('x86_64' or 'arm64')"
+  type        = string
+  default     = "x86_64"
+
+  validation {
+    condition     = contains(["x86_64", "arm64"], var.architecture)
+    error_message = "architecture must be 'x86_64' or 'arm64'."
+  }
+}
+
 variable "layers" {
   description = "List of Lambda layer ARNs to attach (max 5)"
   type        = list(string)
